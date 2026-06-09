@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<!-- 
+  VLS Systems® — Miami Health Hub
+  Professional Portfolio Version
+  Developed by: Valquíria Lemes
+  
+  Funcionalidade: Gestão de Transporte e Clínica (Offline First)
+-->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="description" content="VLS Systems® Miami Health Hub - Aplicação profissional de gestão de pacientes e rotas com funcionalidade offline first.">
+<meta name="author" content="Valquíria Lemes">
+<meta name="application-name" content="VLS Systems®">
+<title>VLS Systems® - Miami Health Hub</title>
+<style>
+/* VLS Systems® — Estilo Visual Profissional */
+:root{
+  --f:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --fm:'SF Mono','Fira Code','Consolas',monospace;
+  --bg:#080B10;--bg2:#0D1117;--card:#111720;--card2:#161D28;
+  --b:rgba(200,205,214,.09);--b2:rgba(200,205,214,.17);
+  --chrome:linear-gradient(135deg,#E8EAED 0%,#B8BCC6 25%,#D8DBE2 50%,#8E9299 72%,#C4C8D0 100%);
+  --sv:#C4C8D0;--sv2:#9BA3B0;--sv3:#64707D;
+  --ac:#00C8FF;--gn:#00E5A0;--am:#FFB830;--rd:#FF4D6A;--pu:#A855F7;
+  --tx:#E6E9F0;--tx2:#8A96A6;--tx3:#46566A;
+  --r:14px;--rs:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;}
+body{font-family:var(--f);background:var(--bg);color:var(--tx);display:flex;flex-direction:column;height:100vh;max-width:430px;margin:0 auto;box-shadow:0 0 100px rgba(0,0,0,.95);overflow:hidden;}
+.sbar{height:44px;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--b);padding:11px 14px 10px;flex-shrink:0;}
+.logo-text .t1{font-size:19px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;background:var(--chrome);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-text .t2{font-size:9px;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px;}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.footer{flex-shrink:0;text-align:center;padding:8px 0 5px;background:var(--bg);border-top:1px solid var(--b);}
+.footer-txt{font-size:10px;color:var(--tx3);}
+.bnav{flex-shrink:0;background:var(--bg2);border-top:1px solid var(--b);display:flex;padding-bottom:env(safe-area-inset-bottom,0px);}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 2px 7px;cursor:pointer;gap:3px;position:relative;}
+.ni-i{font-size:20px;}
+.ni-l{font-size:8px;font-weight:700;text-transform:uppercase;color:var(--tx3);}
+.ni.on .ni-l{color:var(--sv);}
+.card{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:14px;margin:13px;}
+.btn{padding:12px;border-radius:10px;font-weight:700;border:none;cursor:pointer;width:100%;transition:all 0.2s ease;}
+.bch{background:var(--chrome);color:#080B10;}
+.bch:hover{opacity:0.9;transform:translateY(-2px);}
+h3{font-size:16px;margin-bottom:8px;color:var(--tx);}
+p{font-size:13px;color:var(--tx2);margin-bottom:12px;}
+small{font-size:11px;color:var(--tx3);}
+</style>
+</head>
+<body>
+
+<div class="sbar">
+  <span id="clock">09:41</span>
+  <div>📶 🔋</div>
+</div>
+
+<div class="hdr">
+  <div class="logo-text">
+    <div class="t1">VLS SYSTEMS®</div>
+    <div class="t2" id="clinic-name">Miami Health Hub</div>
+  </div>
+  <div style="margin-top:10px; display:flex; gap:5px;">
+    <button class="btn bch" onclick="setMode('clinic')">🏥 Clínica</button>
+    <button class="btn bch" onclick="setMode('driver')">🚐 Motorista</button>
+  </div>
+</div>
+
+<div class="content" id="app">
+  <!-- Conteúdo será gerado pelo JavaScript -->
+</div>
+
+<div class="footer">
+  <div class="footer-txt">🛡 VLS Systems® | Developed by Valquíria Lemes</div>
+</div>
+
+<script>
+// --- VLS Systems® Miami Health Hub ---
+// Aplicação profissional de gestão de pacientes e rotas
+// Arquitetura: Offline First com persistência em LocalStorage
+
+// Carrega os dados do localStorage ou usa os dados padrão se estiver vazio
+let patients = JSON.parse(localStorage.getItem('vls_patients')) || [
+  {id:1, name:"Dorothy Williams", phone:"(305)555-0101", cond:"Spine", status:"active"},
+  {id:2, name:"Roberto Fernández", phone:"(305)555-0102", cond:"Fracture", status:"pending"}
+];
+
+// Persistência de dados
+function saveAll() {
+  localStorage.setItem('vls_patients', JSON.stringify(patients));
+}
+
+// Define o modo de operação (Clínica ou Motorista)
+function setMode(mode) {
+  const app = document.getElementById('app');
+  if(mode === 'clinic') {
+    app.innerHTML = `
+      <div class="card">
+        <h3>Painel da Clínica</h3>
+        <p>Gerencie seus pacientes de Miami com segurança.</p>
+        <button class="btn bch" onclick="addPatient()">+ Novo Paciente</button>
+        <div id="list" style="margin-top:10px"></div>
+      </div>
+    `;
+    renderPatients();
+  } else {
+    app.innerHTML = `
+      <div class="card">
+        <h3>Modo Motorista</h3>
+        <p>Rotas de hoje em Miami...</p>
+        <div id="routes" style="margin-top:10px">
+          <div style="padding:10px; border-bottom:1px solid #222">
+            <strong>Rota 01</strong> - 3 paradas programadas
+          </div>
+          <div style="padding:10px; border-bottom:1px solid #222">
+            <strong>Rota 02</strong> - 2 paradas programadas
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Renderiza lista de pacientes
+function renderPatients() {
+  const list = document.getElementById('list');
+  if(!list) return;
+  list.innerHTML = patients.map(p => `
+    <div style="padding:10px; border-bottom:1px solid #222">
+      <strong>${p.name}</strong> - <small>${p.status}</small>
+      <br><small style="color:var(--tx3);">${p.phone}</small>
+    </div>
+  `).join('');
+}
+
+// Adiciona novo paciente
+function addPatient() {
+  const name = prompt("Nome do Paciente:");
+  if(name) {
+    const phone = prompt("Telefone:");
+    patients.push({
+      id: Date.now(), 
+      name: name, 
+      phone: phone || '(305)000-0000',
+      cond: 'Pending',
+      status: 'pending'
+    });
+    saveAll(); // Salva no navegador!
+    renderPatients();
+  }
+}
+
+// Relógio em tempo real
+setInterval(() => {
+  document.getElementById('clock').innerText = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+}, 1000);
+
+// Iniciar modo clínica
+setMode('clinic');
+</script>
+</body>
+</html>
